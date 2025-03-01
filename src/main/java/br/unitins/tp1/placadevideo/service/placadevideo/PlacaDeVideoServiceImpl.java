@@ -1,19 +1,10 @@
 package br.unitins.tp1.placadevideo.service.placadevideo;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import br.unitins.tp1.placadevideo.dto.request.PlacaDeVideoRequestDTO;
-import br.unitins.tp1.placadevideo.dto.request.SaidaVideoRequestDTO;
-import br.unitins.tp1.placadevideo.model.Fornecedor;
-import br.unitins.tp1.placadevideo.model.placadevideo.Fan;
 import br.unitins.tp1.placadevideo.model.placadevideo.PlacaDeVideo;
-import br.unitins.tp1.placadevideo.model.placadevideo.SaidaVideo;
 import br.unitins.tp1.placadevideo.repository.placadevideo.PlacaDeVideoRepository;
-import br.unitins.tp1.placadevideo.service.fornecedor.FornecedorService;
-import br.unitins.tp1.placadevideo.service.lote.LoteService;
-import br.unitins.tp1.placadevideo.validation.ValidationException;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.persistence.EntityNotFoundException;
@@ -24,17 +15,12 @@ import jakarta.validation.Valid;
 public class PlacaDeVideoServiceImpl implements PlacaDeVideoService {
 
     @Inject
-    public PlacaDeVideoRepository placaDeVideoRepository;
-
-    @Inject
-    public LoteService loteService;
-
-    @Inject
-    public FornecedorService fornecedorService;
+    private PlacaDeVideoRepository placaDeVideoRepository;
 
     @Override
     public PlacaDeVideo findById(Long id) {
-        return placaDeVideoRepository.findById(id);
+        return placaDeVideoRepository.findByIdOptional(id)
+                .orElseThrow(() -> new EntityNotFoundException("Placa de Vídeo não encontrada."));
     }
 
     @Override
@@ -49,110 +35,54 @@ public class PlacaDeVideoServiceImpl implements PlacaDeVideoService {
 
     @Override
     public List<PlacaDeVideo> findAll() {
-        return placaDeVideoRepository.findAll().list();
+        return placaDeVideoRepository.listAll();
     }
 
     @Override
     @Transactional
     public PlacaDeVideo create(@Valid PlacaDeVideoRequestDTO dto) {
         PlacaDeVideo placaDeVideo = new PlacaDeVideo();
-
-        placaDeVideo.setModelo(dto.modelo());
-        placaDeVideo.setCategoria(dto.categoria());
-        placaDeVideo.setPreco(dto.preco());
-        placaDeVideo.setResolucao(dto.resolucao());
-        placaDeVideo.setEnergia(dto.energia());
-        placaDeVideo.setDescricao(dto.descricao());
-        placaDeVideo.setCompatibilidade(dto.compatibilidade());
-        placaDeVideo.setClockBase(dto.clockBase());
-        placaDeVideo.setClockBoost(dto.clockBoost());
-        placaDeVideo.setFan(Fan.valueOf(dto.idFan()));
-        placaDeVideo.setSuporteRayTracing(dto.suporteRayTracing());
-        placaDeVideo.setMemoria(dto.memoria().intoEntity());
-        placaDeVideo.setTamanho(dto.tamanho().intoEntity());
-        // saidasVideo
-        List<SaidaVideo> saidas = dto.saidas().stream()
-                .map(SaidaVideoRequestDTO::intoEntity)
-                .collect(Collectors.toList());
-
-        placaDeVideo.setSaidas(saidas);
-
-        Fornecedor fornecedor = fornecedorService.findByIdComTelefones(dto.idFornecedor());
-        if (fornecedor == null) {
-            throw new ValidationException("idFornecedor", "Fornecedor não encontrado");
-        }
-        fornecedor.getTelefones().size();
-        placaDeVideo.setFornecedor(fornecedor);
-
-        // Atualiza o placadevideo no banco
+        updateEntityFromDTO(placaDeVideo, dto);
         placaDeVideoRepository.persist(placaDeVideo);
-
         return placaDeVideo;
     }
 
     @Override
     @Transactional
     public PlacaDeVideo update(Long id, @Valid PlacaDeVideoRequestDTO dto) {
-        PlacaDeVideo placaDeVideo = placaDeVideoRepository.findById(id);
-        if (placaDeVideo == null) {
-            throw new EntityNotFoundException("PlacaDeVideo não encontrado");
-        }
-
-        // Atualiza os campos básicos
-        placaDeVideo.setModelo(dto.modelo());
-        placaDeVideo.setCategoria(dto.categoria());
-        placaDeVideo.setPreco(dto.preco());
-        placaDeVideo.setResolucao(dto.resolucao());
-        placaDeVideo.setEnergia(dto.energia());
-        placaDeVideo.setDescricao(dto.descricao());
-        placaDeVideo.setCompatibilidade(dto.compatibilidade());
-        placaDeVideo.setClockBase(dto.clockBase());
-        placaDeVideo.setClockBoost(dto.clockBoost());
-        placaDeVideo.setFan(Fan.valueOf(dto.idFan()));
-        placaDeVideo.setSuporteRayTracing(dto.suporteRayTracing());
-        placaDeVideo.setMemoria(dto.memoria().intoEntity());
-        placaDeVideo.setTamanho(dto.tamanho().intoEntity());
-
-        // Atualização da lista de `saidas`
-        List<SaidaVideo> novasSaidas = dto.saidas().stream()
-                .map(SaidaVideoRequestDTO::intoEntity)
-                .collect(Collectors.toList());
-        placaDeVideo.getSaidas().clear(); // Limpa a lista atual
-        placaDeVideo.getSaidas().addAll(novasSaidas); // Adiciona os novos itens
-
-        // Atualiza o fornecedor
-        Fornecedor fornecedor = fornecedorService.findByIdComTelefones(dto.idFornecedor());
-        if (fornecedor == null) {
-            throw new ValidationException("idFornecedor", "Fornecedor não encontrado");
-        }
-        fornecedor.getTelefones().size(); // Garante que telefones estão inicializados
-        placaDeVideo.setFornecedor(fornecedor);
-
-        // Persiste as alterações
-        placaDeVideoRepository.persist(placaDeVideo);
+        PlacaDeVideo placaDeVideo = findById(id);
+        updateEntityFromDTO(placaDeVideo, dto);
         return placaDeVideo;
     }
 
     @Override
     @Transactional
     public void delete(Long id) {
-        placaDeVideoRepository.deleteById(id);
+        if (!placaDeVideoRepository.deleteById(id)) {
+            throw new EntityNotFoundException("Placa de Vídeo não encontrada para exclusão.");
+        }
+    }
+
+    private void updateEntityFromDTO(PlacaDeVideo placaDeVideo, PlacaDeVideoRequestDTO dto) {
+        placaDeVideo.setModelo(dto.modelo());
+        placaDeVideo.setCategoria(dto.categoria());
+        placaDeVideo.setPreco(dto.preco());
+        placaDeVideo.setDescricao(dto.descricao());
+        placaDeVideo.setEstoque(dto.estoque());
+
+        placaDeVideo.setTipoMemoria(dto.tipoMemoria());
+        placaDeVideo.setCapacidadeMemoria(dto.capacidadeMemoria());
+        placaDeVideo.setQuantidadeCoolers(dto.quantidadeCoolers());
+
+        placaDeVideo.setAltura(dto.altura());
+        placaDeVideo.setLargura(dto.largura());
+        placaDeVideo.setComprimento(dto.comprimento());
+
+        placaDeVideo.setSaidasVideo(dto.saidasVideo());
     }
 
     @Override
-    @Transactional
     public PlacaDeVideo updateNomeImagem(Long id, String nomeImagem) {
-        PlacaDeVideo placaDeVideo = placaDeVideoRepository.findById(id);
-        if (placaDeVideo == null) {
-            throw new ValidationException("idPlacaDeVideo", "PlacaDeVideo não encontrado");
-        }
-
-        if (placaDeVideo.getListaImagem() == null) {
-            placaDeVideo.setListaImagem(new ArrayList<>());
-        }
-
-        placaDeVideo.getListaImagem().add(nomeImagem);
-        return placaDeVideo;
+        throw new UnsupportedOperationException("Unimplemented method 'updateNomeImagem'");
     }
-
 }

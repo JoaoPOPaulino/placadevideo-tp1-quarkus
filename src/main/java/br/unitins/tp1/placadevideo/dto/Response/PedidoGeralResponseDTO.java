@@ -8,25 +8,19 @@ import java.util.stream.Collectors;
 import br.unitins.tp1.placadevideo.model.pedido.Pedido;
 
 public record PedidoGeralResponseDTO(
-    Long id,
-    LocalDateTime data, 
-    BigDecimal valorTotal,
-    List<UpdateSatusPedidoResponseDTO> statusPedido,
-    PagamentoResponseDTO pagamento
+        Long id,
+        LocalDateTime data,
+        BigDecimal valorTotal,
+        List<UpdateStatusPedidoResponseDTO> statusPedido) {
 
-    ) {
-
-    public static PedidoGeralResponseDTO valueOf(Pedido pedido){
+    public static PedidoGeralResponseDTO valueOf(Pedido pedido) {
         return new PedidoGeralResponseDTO(
-            pedido.getId(),
-            pedido.getData(),
-            pedido.getValorTotal(),
-            pedido.getListaStatus().stream()
-            .map(UpdateSatusPedidoResponseDTO::valueOf)
-            .collect(Collectors.toList()),
-            PagamentoResponseDTO.valueOf(pedido.getPagamento())
-            
+                pedido.getId(),
+                pedido.getData(),
+                pedido.getValorTotal(),
+                pedido.getStatus().stream()
+                        .map(UpdateStatusPedidoResponseDTO::valueOf)
+                        .collect(Collectors.toList())
         );
     }
-
 }

@@ -1,85 +1,31 @@
 package br.unitins.tp1.placadevideo.model.placadevideo;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 import br.unitins.tp1.placadevideo.model.DefaultEntity;
-import br.unitins.tp1.placadevideo.model.Fornecedor;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.CollectionTable;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 
 @Entity
 public class PlacaDeVideo extends DefaultEntity {
+
     private String modelo;
     private String categoria;
     private BigDecimal preco;
-    private String resolucao;
-    private Integer energia;
     private String descricao;
-    private Integer compatibilidade;
-    private Fan fan;
-    private Double clockBase;
-    private Double clockBoost;
-    private Boolean suporteRayTracing;
+    private Integer estoque;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "id_memoria")
-    private Memoria memoria;
+    // Especificações técnicas
+    private String tipoMemoria;
+    private Integer capacidadeMemoria; // GB
+    private Integer quantidadeCoolers;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
-    @JoinColumn(name = "id_saidavideo")
-    private List<SaidaVideo> saidas;
+    // Dimensões
+    private Integer altura;
+    private Integer largura;
+    private Integer comprimento;
 
-    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "id_tamanho")
-    private Tamanho tamanho;
-    
-    @ManyToOne
-    @JoinColumn(name = "fornecedor_id")
-    private Fornecedor fornecedor; 
-
-    @ElementCollection
-    @CollectionTable(name = "imagem_placadevideo", joinColumns = @JoinColumn(name = "id_placadevideo"))
-    private List<String> listaImagem;
-    
-    public Fornecedor getFornecedor() {
-        return fornecedor;
-    }
-
-    public void setFornecedor(Fornecedor fornecedor) {
-        this.fornecedor = fornecedor;
-    } 
-    
-    public Double getClockBase() {
-        return clockBase;
-    }
-
-    public void setClockBase(Double clokBase) {
-        this.clockBase = clokBase;
-    }
-    
-    public Double getClockBoost() {
-        return clockBoost;
-    }
-
-    public void setClockBoost(Double clockBoost) {
-        this.clockBoost = clockBoost;
-    }
-
-    public Fan getFan() {
-        return fan;
-    }
-
-    public void setFan(Fan fan) {
-        this.fan = fan;
-    }
+    // Conectores de saída de vídeo
+    private String saidasVideo;
 
     public String getModelo() {
         return modelo;
@@ -105,22 +51,6 @@ public class PlacaDeVideo extends DefaultEntity {
         this.preco = preco;
     }
 
-    public String getResolucao() {
-        return resolucao;
-    }
-
-    public void setResolucao(String resolucao) {
-        this.resolucao = resolucao;
-    }
-
-    public Integer getEnergia() {
-        return energia;
-    }
-
-    public void setEnergia(Integer energia) {
-        this.energia = energia;
-    }
-
     public String getDescricao() {
         return descricao;
     }
@@ -129,54 +59,67 @@ public class PlacaDeVideo extends DefaultEntity {
         this.descricao = descricao;
     }
 
-    public Integer getCompatibilidade() {
-        return compatibilidade;
+    public Integer getEstoque() {
+        return estoque;
     }
 
-    public void setCompatibilidade(Integer compatibilidade) {
-        this.compatibilidade = compatibilidade;
+    public void setEstoque(Integer estoque) {
+        this.estoque = estoque;
     }
 
-    public Boolean getSuporteRayTracing() {
-        return suporteRayTracing;
+    public String getTipoMemoria() {
+        return tipoMemoria;
     }
 
-    public void setSuporteRayTracing(Boolean suporteRayTracing) {
-        this.suporteRayTracing = suporteRayTracing;
+    public void setTipoMemoria(String tipoMemoria) {
+        this.tipoMemoria = tipoMemoria;
     }
 
-    public Memoria getMemoria() {
-        return memoria;
+    public Integer getCapacidadeMemoria() {
+        return capacidadeMemoria;
     }
 
-    public void setMemoria(Memoria memoria) {
-        this.memoria = memoria;
+    public void setCapacidadeMemoria(Integer capacidadeMemoria) {
+        this.capacidadeMemoria = capacidadeMemoria;
     }
 
-    public List<SaidaVideo> getSaidas() {
-        return saidas;
+    public Integer getQuantidadeCoolers() {
+        return quantidadeCoolers;
     }
 
-    public void setSaidas(List<SaidaVideo> saidas) {
-        this.saidas = saidas;
+    public void setQuantidadeCoolers(Integer quantidadeCoolers) {
+        this.quantidadeCoolers = quantidadeCoolers;
     }
 
-    public Tamanho getTamanho() {
-        return tamanho;
+    public Integer getAltura() {
+        return altura;
     }
 
-    public void setTamanho(Tamanho tamanho) {
-        this.tamanho = tamanho;
+    public void setAltura(Integer altura) {
+        this.altura = altura;
     }
 
-    public List<String> getListaImagem() {
-        return listaImagem;
+    public Integer getLargura() {
+        return largura;
     }
 
-    public void setListaImagem(List<String> listaImagem) {
-        this.listaImagem = listaImagem;
+    public void setLargura(Integer largura) {
+        this.largura = largura;
     }
 
+    public Integer getComprimento() {
+        return comprimento;
+    }
 
+    public void setComprimento(Integer comprimento) {
+        this.comprimento = comprimento;
+    }
 
+    public String getSaidasVideo() {
+        return saidasVideo;
+    }
+
+    public void setSaidasVideo(String saidasVideo) {
+        this.saidasVideo = saidasVideo;
+    }
 }

@@ -8,29 +8,23 @@ import java.util.stream.Collectors;
 import br.unitins.tp1.placadevideo.model.pedido.Pedido;
 
 public record PedidoResponseDTO(
-    Long id,
-    LocalDateTime data, 
-    BigDecimal valorTotal,
-    List<ItemPedidoResponsetDTO> listaItemPedido,
-    EnderecoEntregaResponseDTO enderecoEntrega,
-    List<UpdateSatusPedidoResponseDTO> statusPedido,
-    PagamentoResponseDTO pagamento
+        Long id,
+        LocalDateTime data,
+        BigDecimal valorTotal,
+        String status,
+        List<ItemPedidoResponseDTO> itens) {
 
-    ) {
-
-    public static PedidoResponseDTO valueOf(Pedido pedido){
+    public static PedidoResponseDTO valueOf(Pedido pedido) {
         return new PedidoResponseDTO(
-            pedido.getId(),
-            pedido.getData(),
-            pedido.getValorTotal(),
-            pedido.getListaItemPedido().stream().map(i -> ItemPedidoResponsetDTO.valueOf(i)).toList(),
-            EnderecoEntregaResponseDTO.valueOf(pedido.getEnderecoEntrega()),
-            pedido.getListaStatus().stream()
-            .map(UpdateSatusPedidoResponseDTO::valueOf)
-            .collect(Collectors.toList()),
-            PagamentoResponseDTO.valueOf(pedido.getPagamento())
-            
+                pedido.getId(),
+                pedido.getData(),
+                pedido.getValorTotal(),
+                (pedido.getStatus() != null && !pedido.getStatus().isEmpty())
+                ? pedido.getStatus().get(pedido.getStatus().size() - 1).getStatus().name()
+                : "N/A",
+                pedido.getItens().stream()
+                        .map(ItemPedidoResponseDTO::valueOf)
+                        .collect(Collectors.toList())
         );
     }
-
 }
